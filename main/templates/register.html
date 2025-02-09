@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/register.js') }}"></script>
+<script src="{{ url_for('static', filename='js/switch_forms.js') }}"></script>
+<script src="{{ url_for('static', filename='js/login.js') }}"></script>
+{% endblock %}
+{% block extra_css %}
+<link href="{{ url_for('static', filename='css/register.css') }}" rel="stylesheet">
+{% endblock %}
+{% block title %}
+Авторизация
+{% endblock %}
+{% block content %}
+<div class="section d-flex justify-content-center mt-5">
+    <div class="card p-4">
+        <div class="card-body form-container">
+
+            <form id="registerForm" class="hidden">
+                <h1>Регистрация</h1>
+                <div class="mb-3">
+                    <label for="registerUsername" class="form-label" >Имя пользователя</label>
+                    <input type="text" class="form-control" id="registerUsername" placeholder="Введите имя пользователя" required>
+                </div>
+                <div class="mb-3">
+                    <label for="registerPassword" class="form-label">Пароль</label>
+                    <input type="password" class="form-control" id="registerPassword" placeholder="Введите пароль" required>
+                </div>
+                <div class="mb-3 form-switch text-center">
+                    <a href="#" class="text-center" id="switchToLogin">Уже есть аккаунт? Войти</a>
+                </div>
+                <button type="submit" class="btn btn-primary button-switch">Создать</button>
+            </form>
+            <form id="loginForm">
+                <h1>Вход</h1>
+                <div class="mb-3">
+                    <label for="loginUsername" class="form-label">Имя пользователя</label>
+                    <input type="text" class="form-control" id="loginUsername" placeholder="Введите имя пользователя" required>
+                </div>
+                <div class="mb-3">
+                    <label for="loginPassword" class="form-label">Пароль</label>
+                    <input type="password" class="form-control" id="loginPassword" placeholder="Введите пароль" required>
+                </div>
+                <div class="mb-3 form-switch text-center">
+                    <a href="" class="text-center" id="switchToRegister">Ещё нет аккаунта? Регистрация</a>
+                </div>
+                <button type="submit" class="btn btn-primary button-switch">Войти</button>
+            </form>
+            <div class="alert alert-success mt-3" id="userMessageSuccess" role="alert" style="display: none;"></div>
+            <div class="alert alert-warning mt-3" id="userMessageWarning" role="alert" style="display: none;"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}

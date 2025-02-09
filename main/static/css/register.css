@@ -1,0 +1,15 @@
+.form-switch {
+    text-align: center;
+    margin-top: 15px;
+}
+.hidden {
+    display: none;
+}
+.form-container {
+    min-width: 25rem;
+    max-width: 25rem;
+}
+.button-switch {
+    min-width: 8rem;
+    max-width: 8rem;
+}
