@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block extra_js %}
+{% endblock %}
+{% block title %}
+Пост {{ post.id }}
+{% endblock %}
+{% block extra_css %}
+<link href="{{ url_for('static', filename='css/post.css') }}" rel="stylesheet">
+{% endblock %}
+{% block content %}
+<div class="section d-flex justify-content-center mt-3 post">
+    <div class="card p-4">
+        <h5 class="card-title">{{ post.title }}</h5>
+        <h6 class="card-subtitle mb-2 text-body-secondary">{{ post.user.username }} - {{ post.created_at.strftime('%Y-%m-%d %H:%M') }}</h6>
+        <p class="card-text">{{ post.content.replace('\n\n', '</p><p>').replace('\n', '<br>') | safe }}</p>
+    </div>
+</div>
+{% endblock %}
