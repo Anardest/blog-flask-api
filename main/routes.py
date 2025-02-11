@@ -1,8 +1,9 @@
 from flask import jsonify, render_template, request, redirect
-from .models import User
+from .models import User, Post, Comment
 from .extensions import db
 from flask_login import current_user, login_user, login_required, logout_user
 from .forms import LoginForm
+import markdown
 
 def init_routes(app):
 
@@ -15,6 +16,11 @@ def init_routes(app):
     def reg_html():
         return render_template('register.html')
     
+
+    # 
+    # АККАУНТ, РЕГИСТРАЦИЯ, АВТОРИЗАЦИЯ
+    # 
+
     # Регистрация
     @app.route('/users/register', methods=['POST'])
     def register():
@@ -59,3 +65,44 @@ def init_routes(app):
     @login_required
     def profile():
         return jsonify({"username": current_user.username})
+    
+
+    # 
+    # ПОСТЫ
+    # 
+
+    # СОЗДАНИЕ ПОСТА
+    @app.route('/posts/add', methods=['POST'])
+    @login_required
+    def add_post():
+        data = request.get_json()
+        new_post = Post(title=data['title'], content=data['content'], user_id = current_user.id)
+
+        db.session.add(new_post)
+        db.session.commit()
+
+        return jsonify({"message": "Пост создан!"}), 201
+    
+    # ВСЕ ПОСТЫ
+    @app.route('/posts/all', methods=['GET'])
+    @login_required
+    def get_posts():
+        posts = Post.query.all()
+        return jsonify([{
+        'id': post.id,
+        'title': post.title,
+        'content': post.content,
+        'created_at': post.created_at.strftime('%Y-%m-%d %H:%M'),
+        'author': post.user.username
+    } for post in posts])
+
+    # КОНКРЕТНЫЙ ПОСТ
+    @app.route('/posts/<int:post_id>')
+    def post_page(post_id):
+        post = Post.query.get(post_id)
+        if not post:
+            return render_template('404.html'), 404  # Если поста нет, отдаём 404 страницу
+
+        post.content = markdown.markdown(post.content)
+        return render_template('post.html', post=post)
+    
