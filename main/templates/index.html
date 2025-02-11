@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block extra_js %}
+<script src="{{ url_for('static', filename='js/add_post.js') }}"></script>
 {% endblock %}
 {% block title %}
 Главная
@@ -9,6 +10,26 @@
 <div id="main-content" class="section p-3">
   <h1>Поздравляю!</h1>
   <p>Вы видите это, потому что вы зарегестрированы! Вы {{ user.username }}!</p>
+  <div class="card">
+    <div class="card-body">
+      <form id="addPost">
+        <h1>Создать пост</h1>
+        <div class="mb-3">
+          <label for="postTitle" class="form-label" >Имя поста</label>
+          <input type="text" class="form-control" id="postTitle" placeholder="Введите имя поста" required>
+        </div>
+        <div class="mb-3">
+          <label for="postContent" class="form-label">Текст поста</label>
+          <textarea class="form-control" id="postContent" placeholder="Введите текст поста" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary button-switch">Создать</button>
+      </form>
+      <div class="alert alert-success mt-3" id="messageSuccess" role="alert" style="display: none;"></div>
+      <div class="alert alert-warning mt-3" id="messageWarning" role="alert" style="display: none;"></div>
+    </div>
+  </div>
+
+  <div id="posts"></div>
 </div>
 {% else %}
 <div class="section p-3">
