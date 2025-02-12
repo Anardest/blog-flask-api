@@ -2,7 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from .routes import init_routes
 from .models import User
-from .extensions import db, login, migrate
+from .extensions import db, login, migrate, ckeditor
 from config import Config
 from dotenv import load_dotenv
 import os
@@ -19,6 +19,7 @@ def create_app():
     db.init_app(app)
     login.init_app(app)
     migrate.init_app(app, db)
+    ckeditor.init_app(app)
 
     # Регистрация маршрутов из routes.py
     init_routes(app)
