@@ -87,17 +87,30 @@ def init_routes(app):
         return jsonify({"message": "Пост создан!"}), 201
     
     # ВСЕ ПОСТЫ
-    @app.route('/posts/all', methods=['GET'])
+    
+    @app.route('/posts/all')
     @login_required
     def get_posts():
-        posts = Post.query.all()
-        return jsonify([{
-        'id': post.id,
-        'title': post.title,
-        'content': post.content,
-        'created_at': post.created_at.strftime('%Y-%m-%d %H:%M'),
-        'author': post.user.username
-    } for post in posts])
+        page = request.args.get('page', 1, type=int)  # Получаем номер страницы (по умолчанию 1)
+        per_page = 5  # Количество постов на страницу
+        pagination = Post.query.order_by(Post.created_at.desc()).paginate(page=page, per_page=per_page, error_out=False)
+
+        posts = [
+            {
+                "id": post.id,
+                "title": post.title,
+                "author": post.user.username,
+                "content": post.content,
+                "created_at": post.created_at.strftime('%Y-%m-%d %H:%M')
+            }
+            for post in pagination.items
+        ]
+
+        return jsonify({
+            "posts": posts,
+            "has_next": pagination.has_next  # Флаг наличия следующей страницы
+        })
+
 
     # КОНКРЕТНЫЙ ПОСТ
     @app.route('/posts/<int:post_id>')
@@ -107,7 +120,7 @@ def init_routes(app):
             return render_template('404.html'), 404  # Если поста нет, отдаём 404 страницу
 
         post.content = markdown.markdown(post.content)
-        return render_template('post.html', post=post)
+        return render_template('post.html', post=post, user=current_user)
     
     # 
     # КОММЕНТАРИИ
