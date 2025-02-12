@@ -4,6 +4,7 @@ from .extensions import db
 from flask_login import current_user, login_user, login_required, logout_user
 from .forms import LoginForm
 import markdown
+from datetime import datetime
 
 def init_routes(app):
 
@@ -76,6 +77,8 @@ def init_routes(app):
     @login_required
     def add_post():
         data = request.get_json()
+        if not data['title'] or not data['content']:
+            return jsonify({'message':'Все поля обязательны!'})
         new_post = Post(title=data['title'], content=data['content'], user_id = current_user.id)
 
         db.session.add(new_post)
@@ -106,3 +109,41 @@ def init_routes(app):
         post.content = markdown.markdown(post.content)
         return render_template('post.html', post=post)
     
+    # 
+    # КОММЕНТАРИИ
+    # 
+
+
+    # ДОБАВИТЬ КОММЕНТАРИЙ
+    @app.route('/posts/<int:post_id>/comment/add', methods=['POST'])
+    @login_required
+    def add_comment(post_id):
+        data = request.get_json()
+        content = data.get("content", "").strip()
+
+        # Проверяем, существует ли пост
+        post = Post.query.get(post_id)
+        if not post:
+            return jsonify({"error": "Пост не найден"}), 404
+
+        # Проверяем, что комментарий не пустой
+        if not content:
+            return jsonify({"error": "Комментарий не может быть пустым"}), 400
+
+        # Создаём комментарий
+        new_comment = Comment(
+            content=content,
+            post_id=int(post_id),  # Приводим к int
+            user_id=int(current_user.id),  # Приводим к int
+            created_at=datetime.utcnow()
+        )
+
+        # Сохраняем в БД
+        db.session.add(new_comment)
+        db.session.commit()
+
+        return jsonify({
+            "username": current_user.username,
+            "content": new_comment.content,
+            "created_at": new_comment.created_at.strftime('%Y-%m-%d %H:%M')
+        }), 201

@@ -1,4 +1,13 @@
-.post {
-    max-width: 100rem;
-    margin: 2rem;
+.card {
+    width: 100rem;  /* Фиксированная ширина */
+    overflow: hidden; /* Обрезает лишний текст */
+    text-overflow: ellipsis; /* Добавляет "..." при обрезке текста */
+    display: flex;
+    flex-direction: column;
+}
+
+.card-text {
+    flex-grow: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
