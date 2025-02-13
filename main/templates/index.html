@@ -2,6 +2,7 @@
 {% block extra_js %}
 <script src="{{ url_for('static', filename='js/add_post.js') }}"></script>
 <script src="{{ url_for('static', filename='js/get_posts.js') }}"></script>
+<script src="{{ url_for('static', filename='js/switch_addpost.js') }}"></script>
 {% endblock %}
 {% block title %}
 Главная
@@ -11,8 +12,12 @@
 <div id="main-content" class="section p-3">
   <h1>Поздравляю!</h1>
   <p>Вы видите это, потому что вы зарегестрированы! Вы {{ user.username }}!</p>
-  <div class="card" style="border-radius: 0;">
+  <button id="showFormAddPost" class="btn btn-primary mt-3 mb-3">Создать пост</button>
+  <button id="hideFormAddPost" class="hidden btn btn-warning mt-3 mb-3">Отмена</button>
+  <hr>
+  <div class="hidden card" style="border-radius: 0; display: none;" id="addPostCard">
     <div class="card-body">
+
       <form id="addPost">
         <h1>Создать пост</h1>
         <div class="mb-3">
