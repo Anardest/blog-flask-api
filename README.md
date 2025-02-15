@@ -222,6 +222,7 @@ $(document).ready(function () {
 - **Flask-SQLAlchemy** - базы данных
 - **Flask-CKEditor** - редактор текста для написания постов
 - **SQLite** – база данных по умолчанию
+- **HTML-CSS-JavaScript** - фронт
 - **AJAX (jQuery)** – асинхронные запросы
 - **Bootstrap** – стилизация фронтенда
 
