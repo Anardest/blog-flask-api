@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block extra_js %}
+<script src="{{ url_for('static', filename='js/answer_to_comment.js') }}"></script>
 {% endblock %}
 {% block title %}
 Пост {{ post.id }}
@@ -19,9 +20,9 @@
             <h6>Комментарии:</h6>
             <div id="commentsList">
                 {% for comment in post.comments %}
-                    <div class="comment border p-2 mb-2">
+                    <div class="comment border p-2 mb-2" data-username="{{ comment.user.username }}" title="Нажмите, чтобы ответить на комментарий">
                         <strong>{{ comment.user.username }}</strong>:
-                        <p>{{ comment.content }}</p>
+                        <p>{{ comment.content | safe }}</p>
                         <small class="text-muted">{{ comment.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
                     </div>
                 {% else %}
@@ -29,7 +30,7 @@
                 {% endfor %}
             </div>
             <hr>
-
+<!-- Теперь всё отображается так: class="mention">@Anardest ДА БАГ, НУ И ЧЁ -->
             <!-- Форма для добавления комментария -->
             {% if user.is_authenticated %}
             <form id="commentForm" class="mt-3 mb-3">
@@ -50,16 +51,23 @@
         let commentContent = $('#commentContent').val().trim();
         let postId = '{{ post.id }}';
 
+        if (!commentContent) {
+            alert("Комментарий не может быть пустым!");
+            return;
+        }
+
+
         $.ajax({
             type: "POST",
             url: `/posts/${postId}/comment/add`,
             contentType: "application/json",
             data: JSON.stringify({content: commentContent}),
             success: function (response) {
+                let highlightedContent = response.content.replace(/@([\w\d]+)/g, '<span class="mention">@$1</span>')
                 $("#commentsList").append(`
-                    <div class="comment border p-2 mb-2">
+                    <div class="comment border p-2 mb-2" data-username="${response.username}" title="Нажмите, чтобы ответить на комментарий">
                         <strong>${response.username}</strong>:
-                        <p>${response.content}</p>
+                        <p>${highlightedContent}</p>
                         <small class="text-muted">${response.created_at}</small>
                     </div>
                 `);

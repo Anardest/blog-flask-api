@@ -2,9 +2,11 @@ from flask import jsonify, render_template, request, redirect
 from .models import User, Post, Comment
 from .extensions import db
 from flask_login import current_user, login_user, login_required, logout_user
-from .forms import LoginForm
 import markdown
 from datetime import datetime
+import re
+
+
 
 def init_routes(app):
 
@@ -112,6 +114,9 @@ def init_routes(app):
         })
 
 
+    def highlight_mentions(text):
+        return re.sub(r'@([\w\d_]+)', r'<span class="mention">@\1</span>', text)
+
     # КОНКРЕТНЫЙ ПОСТ
     @app.route('/posts/<int:post_id>')
     def post_page(post_id):
@@ -119,8 +124,12 @@ def init_routes(app):
         if not post:
             return render_template('404.html'), 404  # Если поста нет, отдаём 404 страницу
 
+        for comment in post.comments:
+            comment.content = highlight_mentions(comment.content)
+
         post.content = markdown.markdown(post.content)
         return render_template('post.html', post=post, user=current_user)
+    
     
     # 
     # КОММЕНТАРИИ
