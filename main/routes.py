@@ -1,5 +1,5 @@
 from flask import jsonify, render_template, request, redirect
-from .models import User, Post, Comment
+from .models import User, Post, Comment, Like
 from .extensions import db
 from flask_login import current_user, login_user, login_required, logout_user
 import markdown
@@ -103,7 +103,9 @@ def init_routes(app):
                 "title": post.title,
                 "author": post.user.username,
                 "content": post.content,
-                "created_at": post.created_at.strftime('%Y-%m-%d %H:%M')
+                "created_at": post.created_at.strftime('%Y-%m-%d %H:%M'),
+                "likes": post.likes if post.likes is not None else 0,
+                "liked": Like.query.filter_by(user_id=current_user.id, post_id=post.id).first() is not None
             }
             for post in pagination.items
         ]
@@ -127,10 +129,44 @@ def init_routes(app):
         for comment in post.comments:
             comment.content = highlight_mentions(comment.content)
 
+        liked = Like.query.filter_by(user_id=current_user.id, post_id=post.id).first() is not None
+
         post.content = markdown.markdown(post.content)
-        return render_template('post.html', post=post, user=current_user)
-    
-    
+        return render_template('post.html', post=post, user=current_user, liked=liked)
+
+
+    # ПОСТАВИТЬ ЛАЙК
+    @app.route('/posts/<int:post_id>/like', methods=['POST'])
+    @login_required
+    def like_post(post_id):
+        post = Post.query.get(post_id)
+
+        if not post:
+            return jsonify({'error','Пост не найден'}), 404
+        
+        # Проверка: поставлен ли лайк от текущего пользователя на конкретный пост
+        existing_like = Like.query.filter_by(user_id=current_user.id, post_id=post_id).first()
+        
+        # Если пользователь уже поставил лайк - удаляем запись о лайке и уменьшаем кол-во лайков. Liked = False для изменения кнопки в JS
+        if existing_like:
+            db.session.delete(existing_like)
+            post.likes -= 1
+            liked = False
+        # Если лайка нет, то добавляем запись о нём, добавляем его к Посту и изменияем Liked = True, для изм. кнопки в JS
+        else:
+            new_like = Like(user_id=current_user.id, post_id=post_id)
+            post.likes += 1
+            db.session.add(new_like)
+            liked = True
+        db.session.commit()
+
+        return jsonify({
+            "likes": post.likes,
+            "liked": liked
+            })
+
+
+
     # 
     # КОММЕНТАРИИ
     # 

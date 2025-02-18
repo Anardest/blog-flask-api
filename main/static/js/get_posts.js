@@ -10,12 +10,17 @@ $(document).ready(function () {
                 let postList = $('#postList');
 
                 response.posts.forEach(function (post) {
+                    let likedClass = post.liked ? "btn-danger" : ""
                     let postHtml = `
                         <div class="card mb-3 p-2" style="border-radius: 0;">
                             <div class="card-body">
                                 <h3>${post.title}</h3><h6>Автор: ${post.author} - ${post.created_at}</h6>
                                 <p>${post.content.substring(0, 200)}...</p>
-                                <a href="/posts/${post.id}">Читать далее</a>
+                                <hr>
+                                <a class="btn btn-outline-primary" href="/posts/${post.id}">Читать далее</a>
+                                <button class="btn ${likedClass} like-btn" data-post-id="${post.id}">
+                                    ❤️ <span class="like-count">${post.likes || 0}</span>
+                                </button>
                             </div>
                         </div>
                     `;
